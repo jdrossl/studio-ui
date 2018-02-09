@@ -135,6 +135,37 @@ YAHOO.extend(CStudioForms.Controls.AWSFileUpload, CStudioForms.CStudioFormField,
     obj.fileEl.innerHTML = "<i class=\"fa fa-spinner fa-spin\"/>";
   },
   
+  listFiles: function(evt, obj) {
+      var listUrl = CStudioAuthoring.Service.createServiceUri("/api/1/services/api/1/aws/s3/list.json");
+      listUrl += "&site=" + CStudioAuthoringContext.siteId;
+      listUrl += "&profile=" + obj.profile_id;
+      listUrl += "&" + CStudioAuthoringContext.xsrfParameterName + "=" + CStudioAuthoringContext.xsrfToken;
+      var listButton = document.getElementById("list_button_" + obj.id);
+      var callback = {
+          success: function(o) {
+              var fileList = document.getElementById("file_list_" + obj.id);
+              var data = JSON.parse(o.responseText);
+              var list = document.getElementById("file_list_" + obj.id);
+              data.keys.forEach(function(key) {
+                  var itemNode = document.createElement("div");
+                  itemNode.innerText = key;
+                  YAHOO.util.Dom.addClass(itemNode, "cstudio-form-control-node-selector-item");
+                  YAHOO.util.Event.on(itemNode, "click", function(evt){
+                      var value = [ { key: evt.target.innerText, bucket: data.bucket } ];
+                      obj.setValue(value);
+                      obj.edited = true;
+                      YAHOO.util.Dom.addClass(list, "hidden");
+                      YAHOO.util.Dom.removeClass(listButton, "hidden");
+                  });
+                  list.appendChild(itemNode);
+              });
+              YAHOO.util.Dom.removeClass(list, "hidden");
+          }
+      };
+      YAHOO.util.Dom.addClass(listButton, "hidden");
+      YAHOO.util.Connect.asyncRequest("GET", listUrl, callback);
+  },
+  
   render: function(config, containerEl, lastTwo) {    
     var titleEl = document.createElement("span");
 		YAHOO.util.Dom.addClass(titleEl, "cstudio-form-field-title");
@@ -179,7 +210,21 @@ YAHOO.extend(CStudioForms.Controls.AWSFileUpload, CStudioForms.CStudioFormField,
     
 		formEl.appendChild(inputEl);
     
+    var listButton = document.createElement("input");
+    listButton.id = "list_button_" + this.id;
+    listButton.type = "button";
+    listButton.value = "Select Existing";
+    YAHOO.util.Event.on(listButton, "click",  this.listFiles, this);
+    formEl.appendChild(listButton)
+    
     controlWidgetContainerEl.appendChild(formEl);
+    
+    var fileList = document.createElement("div");
+    fileList.id = "file_list_" + this.id;
+    YAHOO.util.Dom.addClass(fileList, "cstudio-form-control-node-selector-items-container");
+    YAHOO.util.Dom.addClass(fileList, "hidden");
+    
+    controlWidgetContainerEl.appendChild(fileList);
     
     containerEl.appendChild(controlWidgetContainerEl);
   }
