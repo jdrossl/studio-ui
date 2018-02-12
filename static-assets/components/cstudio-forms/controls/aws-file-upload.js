@@ -210,23 +210,39 @@ YAHOO.extend(CStudioForms.Controls.AWSFileUpload, CStudioForms.CStudioFormField,
     
 		formEl.appendChild(inputEl);
     
+    controlWidgetContainerEl.appendChild(formEl);
+    
+    containerEl.appendChild(controlWidgetContainerEl);
+    
+    var emptyEl = document.createElement("span");
+		YAHOO.util.Dom.addClass(emptyEl, "cstudio-form-field-title");
+		emptyEl.innerHTML = ".";
+    containerEl.appendChild(emptyEl);
+    
+    var listWidgetContainerEl = document.createElement("div");
+    YAHOO.util.Dom.addClass(listWidgetContainerEl, "cstudio-form-control-input-container");
+    
+    var spaceEl = document.createElement("span");
+    YAHOO.util.Dom.addClass(spaceEl, "validation-hint");
+    YAHOO.util.Dom.addClass(spaceEl, "cstudio-form-control-validation");
+    listWidgetContainerEl.appendChild(spaceEl);
+    
     var listButton = document.createElement("input");
     listButton.id = "list_button_" + this.id;
     listButton.type = "button";
     listButton.value = "Select Existing";
+    YAHOO.util.Dom.addClass(listButton, "cstudio-button");
     YAHOO.util.Event.on(listButton, "click",  this.listFiles, this);
-    formEl.appendChild(listButton)
-    
-    controlWidgetContainerEl.appendChild(formEl);
+    listWidgetContainerEl.appendChild(listButton)
     
     var fileList = document.createElement("div");
     fileList.id = "file_list_" + this.id;
     YAHOO.util.Dom.addClass(fileList, "cstudio-form-control-node-selector-items-container");
     YAHOO.util.Dom.addClass(fileList, "hidden");
     
-    controlWidgetContainerEl.appendChild(fileList);
+    listWidgetContainerEl.appendChild(fileList);
     
-    containerEl.appendChild(controlWidgetContainerEl);
+    containerEl.appendChild(listWidgetContainerEl);
   }
   
 });
